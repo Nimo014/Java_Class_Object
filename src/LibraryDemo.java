@@ -1,165 +1,18 @@
 import java.util.*;
+import com.lib.v1.*;
+
 
 @SuppressWarnings("All")    
 public class LibraryDemo {
 
-    public static class Book {
-        private String title;
-        private String author;
-        private int count;
-
-        Book(String title, String author, int count) {
-            this.title = title;
-            this.author = author;
-            this.count = count;
-        }
-
-        String getTitle() {
-            return title;
-        }
-
-        String getAuthor() {
-            return author;
-        }
-
-        int getQuantity() {
-            return count;
-        }
-
-        void borrowCopy() {
-            if (count > 0) {
-                count--;
-            }
-            else {
-                System.out.println("No book available.");
-            }
-        }
-
-        void returnCopy() {
-            count++;
-        }
-
-    }
+    // class composition ; book, author, count
 
     // class composition ; library, list of book object
-    public static class Library {
-        private String LibraryName;
-        private List<Book> books;
-
-        Library(String LibraryName) {
-            this.LibraryName = LibraryName;
-            books = new ArrayList<>();
-        }
-
-        void addBook(Book book) {
-            books.add(book);
-        }
-
-        void returnBook(Book book) {
-            book.returnCopy();
-            addBook(book);
-        }
-
-        Book findBook(String title) {
-            for (Book book : books) {
-                if (book.getTitle().equalsIgnoreCase(title) && book.getQuantity() > 0) {
-                    return book;
-                }
-            }
-            return null;
-        }
-
-        void viewLibrary() {
-            if (books.isEmpty()) {
-                System.out.println("\n The library is empty.");
-            } else {
-                System.out.println("\n Books in the " + LibraryName + ":");
-                int i = 1;
-                for (Book book : books) {
-                    System.out.println("(" + i + ")" + " Title: " + book.getTitle() + ", Author: " + book.getAuthor() + ", Available Copies: " + book.getQuantity());
-                    i++;
-                }
-            }
-        }
-        
-    }
-
+    
     // class composition ; book, date object
-    static class BorrowedBook {
-        Book book;
-        Calendar borrowedDate;
-
-        BorrowedBook(Book book, Calendar borrowedDate) {
-            this.book = book;
-            this.borrowedDate = borrowedDate;
-        }
-
-        Double penalty() {
-            Calendar today = Calendar.getInstance();
-            long diff = today.getTimeInMillis() - borrowedDate.getTimeInMillis();
-            long days = diff / (1000 * 60 * 60 * 24);
-
-            // add penalty after 7 days
-            if (days > 7) {
-                return (days - 7) * 100.0; 
-            }
-            return 0.0;
-        }
-
-        String getBorrowedDate() {
-            return String.format("%1$td/%1$tm/%1$tY", borrowedDate);
-        }
-    }
-
+   
     // class composition ; user, List of borrowed book object
-    public static class User{
-        public String name;
-        public List<BorrowedBook> borrowedBooks = new ArrayList<>();
-
-
-        User(String name) {
-            this.name = name;
-        }
-
-        String getName() {
-            return name;
-        }
-
-        // borrow a book
-        void borrowBook(Calendar date, Book book) {
-            // book already borrowed
-            for (BorrowedBook borrowedBook : borrowedBooks) {
-                if (borrowedBook.book.getTitle().equalsIgnoreCase(book.getTitle())) {
-                    System.out.println("You have already borrowed this book: " + book.getTitle() + ", Penalty : " + borrowedBook.penalty() + " Rs.");
-                    return;
-                }
-            }
-            
-            if (book.getQuantity() > 0) {
-                book.borrowCopy();
-                borrowedBooks.add(new BorrowedBook(book, date));
-                System.out.println("--> You have borrowed: " + book.getTitle());
-
-            } else {
-                System.out.println("Book is not available for borrowing.");
-            }       
-        }
-
-        // view borrowed books
-        void viewBorrowedBooks() {
-            if (borrowedBooks.isEmpty()) {
-                System.out.println("No books borrowed.");
-            } else {
-                System.out.println("\n--> Borrowed Books:");
-                int i = 1;
-                for (BorrowedBook borrowedBook : borrowedBooks) {
-                    System.out.println("(" + i + ")" + " Title: " + borrowedBook.book.getTitle() + ", Borrowed Date: " + borrowedBook.getBorrowedDate() + ", Penalty: " + borrowedBook.penalty() + " Rs.");
-                    i++;
-                }
-            }
-        }
-
-    }
+    
     
     public static void main(String[] args) {
 
@@ -247,7 +100,7 @@ public class LibraryDemo {
                                 user.borrowBook(date, book);
                                 break;
                             } else {
-                                System.out.println("Book not found in " + library.LibraryName);
+                                System.out.println("Book not found in " + library.getLibraryName());
                             }
                         }
                         user.viewBorrowedBooks();
@@ -257,10 +110,10 @@ public class LibraryDemo {
                         String returnTitle = scanner.next();
                         boolean bookReturned = false;
                         for (BorrowedBook borrowedBook : user.borrowedBooks) {
-                            if (borrowedBook.book.getTitle().equalsIgnoreCase(returnTitle)) {
-                                borrowedBook.book.returnCopy();
+                            if (borrowedBook.getBook().getTitle().equalsIgnoreCase(returnTitle)) {
+                                borrowedBook.getBook().returnCopy();
                                 for (Library library : libraries) {
-                                    library.returnBook(borrowedBook.book);
+                                    library.returnBook(borrowedBook.getBook());
                                 }
                                 user.borrowedBooks.remove(borrowedBook);
                                 bookReturned = true;
